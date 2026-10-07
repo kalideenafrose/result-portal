@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Result Release Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">📋</span>
+        <span class="logo-text">ResultPortal</span>
+      </div>
+      <div class="header-badge">Lecturer Dashboard</div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-tag">Tutorial Result Release</div>
+      <h1>Release Student Results</h1>
+      <p>Enter, review, and publish examination results securely and efficiently.</p>
+    </div>
+  </section>
+
+  <!-- Main Form -->
+  <main class="main-container">
+
+    <!-- Progress Steps -->
+    <div class="steps">
+      <div class="step active" data-step="1">
+        <div class="step-num">1</div>
+        <span>Course Info</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step" data-step="2">
+        <div class="step-num">2</div>
+        <span>Students & Grades</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step" data-step="3">
+        <div class="step-num">3</div>
+        <span>Review & Release</span>
+      </div>
+    </div>
+
+    <form id="resultForm" novalidate>
+
+      <!-- STEP 1: Course Info -->
+      <div class="form-panel active" id="panel-1">
+        <h2 class="panel-title">Course Information</h2>
+        <p class="panel-desc">Fill in the details about the course.</p>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="courseName">Course Name <span class="req">*</span></label>
+            <input type="text" id="courseName" name="courseName" placeholder="" required />
+            <span class="field-error" id="err-courseName"></span>
+          </div>
+          <div class="field">
+            <label for="courseCode">Course Code <span class="req">*</span></label>
+            <input type="text" id="courseCode" name="courseCode" placeholder="" required />
+            <span class="field-error" id="err-courseCode"></span>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="semester">Semester <span class="req">*</span></label>
+            <select id="semester" name="semester" required>
+              <option value="">Select semester</option>
+              <option>Semester 1</option>
+              <option>Semester 2</option>
+              <option>Semester 3</option>
+              <option>Semester 4</option>
+              <option>Semester 5</option>
+              <option>Semester 6</option>
+            </select>
+            <span class="field-error" id="err-semester"></span>
+          </div>
+          <div class="field">
+            <label for="academicYear">Academic Year <span class="req">*</span></label>
+            <input type="text" id="academicYear" name="academicYear" placeholder="2024/2025" required />
+            <span class="field-error" id="err-academicYear"></span>
+          </div>
+        </div>
+
+        <div class="field" style="max-width: 280px;">
+          <label for="totalMarks">Total Marks <span class="req">*</span></label>
+          <input type="number" id="totalMarks" name="totalMarks" placeholder="100" min="1" required />
+          <span class="field-error" id="err-totalMarks"></span>
+        </div>
+
+        <div class="btn-row">
+          <button type="button" class="btn-next" onclick="goStep(2)">Next: Add Students →</button>
+        </div>
+      </div>
+
+      <!-- STEP 2: Students & Grades -->
+      <div class="form-panel" id="panel-2">
+        <h2 class="panel-title">Student Results</h2>
+        <p class="panel-desc">Upload a CSV file for large classes, or add students manually one by one.</p>
+
+        <!-- CSV Upload Box -->
+        <div class="upload-zone" id="uploadZone">
+          <div class="upload-icon">📂</div>
+          <div class="upload-text">
+            <strong>Upload CSV or Excel file</strong>
+            <span>Drag & drop here, or click to browse</span>
+            <span class="upload-format">Required columns: <code>student_id, student_name, marks</code></span>
+          </div>
+          <input type="file" id="csvFileInput" accept=".csv,.xlsx,.xls" onchange="handleFileUpload(event)" />
+          <button type="button" class="btn-upload" onclick="document.getElementById('csvFileInput').click()">Choose File</button>
+        </div>
+
+        <!-- Template Download -->
+        <div class="template-row">
+          <span class="template-hint">📄 Don't have a file yet?</span>
+          <button type="button" class="btn-template" onclick="downloadTemplate()">Download CSV Template</button>
+          <span class="upload-count" id="uploadCount"></span>
+        </div>
+
+        <!-- Upload Status -->
+        <div id="uploadStatus" class="upload-status" style="display:none;"></div>
+
+        <div class="divider"><span>or add manually</span></div>
+
+        <div class="two-col-layout">
+          <div class="students-col">
+            <div id="studentsContainer">
+              <!-- Student rows injected here -->
+            </div>
+
+            <button type="button" class="btn-add-student" onclick="addStudent()">
+              <span>+</span> Add Student
+            </button>
+          </div>
+
+          <aside class="grade-guide">
+            <h3>Grading Scale</h3>
+            <table class="grade-table">
+              <thead><tr><th>Grade</th><th>Marks (%)</th><th>Points</th></tr></thead>
+              <tbody>
+                <tr><td class="grade-A">A+</td><td>90–100</td><td>4.0</td></tr>
+                <tr><td class="grade-A">A</td><td>80–89</td><td>4.0</td></tr>
+                <tr><td class="grade-A">A-</td><td>75–79</td><td>3.7</td></tr>
+                <tr><td class="grade-B">B+</td><td>70–74</td><td>3.3</td></tr>
+                <tr><td class="grade-B">B</td><td>65–69</td><td>3.0</td></tr>
+                <tr><td class="grade-B">B-</td><td>60–64</td><td>2.7</td></tr>
+                <tr><td class="grade-C">C+</td><td>55–59</td><td>2.3</td></tr>
+                <tr><td class="grade-C">C</td><td>50–54</td><td>2.0</td></tr>
+                <tr><td class="grade-D">D</td><td>45–49</td><td>1.0</td></tr>
+                <tr><td class="grade-F">F</td><td>0–44</td><td>0.0</td></tr>
+              </tbody>
+            </table>
+            <div class="guide-note">Grades auto-calculate when you enter marks.</div>
+          </aside>
+        </div>
+
+        <div class="btn-row split">
+          <button type="button" class="btn-back" onclick="goStep(1)">← Back</button>
+          <button type="button" class="btn-next" onclick="goStep(3)">Next: Review →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Review & Release -->
+      <div class="form-panel" id="panel-3">
+        <h2 class="panel-title">Review & Release</h2>
+        <p class="panel-desc">Confirm all details before releasing results to students.</p>
+
+        <div id="summaryBox" class="summary-box"></div>
+
+        <div class="release-options">
+          <h3>Release Settings</h3>
+          <div class="grid-2">
+            <div class="field">
+              <label for="releaseDate">Release Date <span class="req">*</span></label>
+              <input type="datetime-local" id="releaseDate" name="releaseDate" required />
+              <span class="field-error" id="err-releaseDate"></span>
+            </div>
+            <div class="field">
+              <label for="visibility">Visibility</label>
+              <select id="visibility" name="visibility">
+                <option value="students">Students Only</option>
+                <option value="public">All (Public)</option>
+                <option value="scheduled">Scheduled Release</option>
+              </select>
+            </div>
+          </div>
+          <div class="checkbox-row">
+            <label class="check-label">
+              <input type="checkbox" id="notifyEmail" name="notifyEmail" checked />
+              <span class="checkmark"></span>
+              Notify students via email on release
+            </label>
+          </div>
+          <div class="checkbox-row">
+            <label class="check-label">
+              <input type="checkbox" id="confirmAccuracy" name="confirmAccuracy" required />
+              <span class="checkmark"></span>
+              I confirm these results are accurate and final <span class="req">*</span>
+            </label>
+            <span class="field-error" id="err-confirm"></span>
+          </div>
+        </div>
+
+        <div class="btn-row split">
+          <button type="button" class="btn-back" onclick="goStep(2)">← Back</button>
+          <button type="submit" class="btn-submit" id="submitBtn">
+            <span class="submit-icon">🚀</span> Release Results
+          </button>
+        </div>
+      </div>
+
+    </form>
+
+    <!-- Success Message -->
+    <div class="success-screen" id="successScreen" style="display:none;">
+      <div class="success-icon">✅</div>
+      <h2>Results Released Successfully!</h2>
+      <p>The results have been submitted and will be available to students as per your release settings.</p>
+      <div class="success-meta" id="successMeta"></div>
+      <button class="btn-next" onclick="resetForm()">Submit Another Result</button>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <p>ResultPortal &copy; 2025 — Secure Academic Result Management System</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
